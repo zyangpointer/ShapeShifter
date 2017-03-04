@@ -1,0 +1,24 @@
+{
+  "static": {
+    "urls": {
+      "/ShapeShifter/main.5acaf1dd45aa3da6bc86.bundle.js": "5e0a1d36b6e9415dd91287b30a55f94a01765deb",
+      "/ShapeShifter/polyfills.58af38cebb9f0d33fa4b.bundle.js": "e5e9da161b135aa74b709b5d44a9b2445a667ad7",
+      "/ShapeShifter/sw-register.86a9be57c2122660cda4.bundle.js": "d307df289a81139d2ff9e0ff9dc83af9b5f71b9d",
+      "/ShapeShifter/vendor.caf04c6966a9a68a09ec.bundle.js": "0583d21126ad98149d32b67970becb45e2ff3cec",
+      "/ShapeShifter/inline.6fccd01a78ef7a07ae0f.bundle.js": "ed4dc0d5b3291c38ff8a28f5b32852afb05151bc",
+      "/ShapeShifter/styles.51442149c7b68366ed71.bundle.css": "0095e63f4cd31941c5e93d326f59630d1ebe2147",
+      "/ShapeShifter/assets/autofix.svg": "57816af39769206d20a5eed670e4cd61e0e3adee",
+      "/ShapeShifter/assets/demoicon.svg": "c3dff653da33d33cbb80c81c487f1b6b776fcc48",
+      "/ShapeShifter/assets/pauseplay-white.png": "5ed13c9ed6311546e3613304774faa7e73fee8cc",
+      "/ShapeShifter/assets/playpause-white.png": "258952f29f3f00ccf8feca2c63787b3ea38d91bb",
+      "/ShapeShifter/assets/reverse.svg": "e4f70379eda10a7284f02df8dc74c52c44710a96",
+      "/ShapeShifter/assets/screencap.jpg": "1f6ebb2bbfd14cf48dcad7d3129ce2ca20c2f1f4",
+      "/ShapeShifter/assets/shapeshifter.png": "6cd25dfd1dbd8d91c41635451e37678de24adee8",
+      "/ShapeShifter/assets/shapeshifter.svg": "c3a65384aa9828ff7b1d4f8c6777b62c7a18c8c9",
+      "/ShapeShifter/manifest.json": "4b07af60f942acaaa9b5590ce086e2dd33372f77",
+      "/ShapeShifter/favicon.ico": "f4aad42c3b43d219090aeada1135a6a4cecd7e38",
+      "/ShapeShifter/index.html": "18ba776c9f426797a827b87802339e1f7b932098"
+    },
+    "_generatedFromWebpack": true
+  }
+}
