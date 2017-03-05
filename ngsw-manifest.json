@@ -1,11 +1,11 @@
 {
   "static": {
     "urls": {
-      "/ShapeShifter/main.c46d9166dd6685c31a38.bundle.js": "9c1e71fa50f1baeae610de561b37ed8a7501eb7e",
+      "/ShapeShifter/main.3be503300030636fc9d7.bundle.js": "3590ee7359856237c0695dbd8aa122c0a1e8a658",
       "/ShapeShifter/polyfills.58af38cebb9f0d33fa4b.bundle.js": "e5e9da161b135aa74b709b5d44a9b2445a667ad7",
       "/ShapeShifter/sw-register.86a9be57c2122660cda4.bundle.js": "d307df289a81139d2ff9e0ff9dc83af9b5f71b9d",
       "/ShapeShifter/vendor.2d6ba0f0e801c41a8d29.bundle.js": "8964cba8abc67926381d6c4f48bacd37e1ede4f0",
-      "/ShapeShifter/inline.5fef11d5ae18e9d9e5a3.bundle.js": "9a7223469b8b4e58111c0c554e0e635842062bda",
+      "/ShapeShifter/inline.9a4bd78f9529e2d06758.bundle.js": "07052b2cb2d1a43f3742c0fd92ff682bab1ec854",
       "/ShapeShifter/styles.51442149c7b68366ed71.bundle.css": "0095e63f4cd31941c5e93d326f59630d1ebe2147",
       "/ShapeShifter/assets/autofix.svg": "57816af39769206d20a5eed670e4cd61e0e3adee",
       "/ShapeShifter/assets/demoicon.svg": "c3dff653da33d33cbb80c81c487f1b6b776fcc48",
@@ -17,7 +17,7 @@
       "/ShapeShifter/assets/shapeshifter.svg": "c3a65384aa9828ff7b1d4f8c6777b62c7a18c8c9",
       "/ShapeShifter/manifest.json": "4b07af60f942acaaa9b5590ce086e2dd33372f77",
       "/ShapeShifter/favicon.ico": "f4aad42c3b43d219090aeada1135a6a4cecd7e38",
-      "/ShapeShifter/index.html": "9ae984d24239f570484427bdb39d89fe58b961c5"
+      "/ShapeShifter/index.html": "07622cf1122b9235a13ead3312a560bec4c7492d"
     },
     "_generatedFromWebpack": true
   }
