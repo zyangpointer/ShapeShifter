@@ -1,11 +1,11 @@
 {
   "static": {
     "urls": {
-      "/ShapeShifter/main.f31f1b337042f718dde4.bundle.js": "d79a4e6d16e009cfe468ff5c9962db6c21b57d40",
-      "/ShapeShifter/polyfills.58af38cebb9f0d33fa4b.bundle.js": "e5e9da161b135aa74b709b5d44a9b2445a667ad7",
+      "/ShapeShifter/main.f89651986c73e3ccafb1.bundle.js": "90c709610216ef955a9892bcf0c3c0f7510041a9",
+      "/ShapeShifter/polyfills.55dcb1caef69ecaa0707.bundle.js": "76b5b20cc68161b51e84578735da53258b45254d",
       "/ShapeShifter/sw-register.86a9be57c2122660cda4.bundle.js": "d307df289a81139d2ff9e0ff9dc83af9b5f71b9d",
-      "/ShapeShifter/vendor.2d6ba0f0e801c41a8d29.bundle.js": "8964cba8abc67926381d6c4f48bacd37e1ede4f0",
-      "/ShapeShifter/inline.53cf6dca2cc081382151.bundle.js": "321956e97ec73547a7704de9cf004559ef97a024",
+      "/ShapeShifter/vendor.2d6ba0f0e801c41a8d29.bundle.js": "56878e24392a652c51663f7c1d13e37712e2ff63",
+      "/ShapeShifter/inline.e8bff687912ce32e3a5d.bundle.js": "6c9730f7cb54ffbd1b8de085705a49e3c8c698b1",
       "/ShapeShifter/styles.51442149c7b68366ed71.bundle.css": "0095e63f4cd31941c5e93d326f59630d1ebe2147",
       "/ShapeShifter/assets/autofix.svg": "57816af39769206d20a5eed670e4cd61e0e3adee",
       "/ShapeShifter/assets/demoicon.svg": "c3dff653da33d33cbb80c81c487f1b6b776fcc48",
@@ -17,7 +17,7 @@
       "/ShapeShifter/assets/shapeshifter.svg": "c3a65384aa9828ff7b1d4f8c6777b62c7a18c8c9",
       "/ShapeShifter/manifest.json": "4b07af60f942acaaa9b5590ce086e2dd33372f77",
       "/ShapeShifter/favicon.ico": "f4aad42c3b43d219090aeada1135a6a4cecd7e38",
-      "/ShapeShifter/index.html": "288eef9c3b3eb3b5c5b24877e0c498f4de4e2adf"
+      "/ShapeShifter/index.html": "87c44926451ebf961f4a9692e307cebd16ccb6e2"
     },
     "_generatedFromWebpack": true
   }
