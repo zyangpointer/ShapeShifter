@@ -1,11 +1,11 @@
 {
   "static": {
     "urls": {
-      "/main.cde88007cdb2296bffcb.bundle.js": "f743d0cc71ef6daa3e85a5b62eef9d441ab5f3ed",
+      "/main.4cbdc197a10a3576c202.bundle.js": "db11dc31bfdcc3476668591c0c14a994a9c48900",
       "/polyfills.be710277a9ade123acea.bundle.js": "98dc91f791c499928491613f1b1d0a63aa5bf2f8",
       "/sw-register.86a9be57c2122660cda4.bundle.js": "d307df289a81139d2ff9e0ff9dc83af9b5f71b9d",
-      "/vendor.ece244e3fd68a0d9dea3.bundle.js": "2d9f57cf2c0aecf65ce957ec1f35661b24595cd1",
-      "/inline.2983476f29d113a3b931.bundle.js": "82310ec3cecf676f868a3ff838f1216ce010e122",
+      "/vendor.8c47c4bdfbe0637a5bdc.bundle.js": "2d9f57cf2c0aecf65ce957ec1f35661b24595cd1",
+      "/inline.04067abb19491d5da687.bundle.js": "3327132076e38b456feab55aac3691edc978e89a",
       "/styles.51442149c7b68366ed71.bundle.css": "0095e63f4cd31941c5e93d326f59630d1ebe2147",
       "/assets/autofix.svg": "57816af39769206d20a5eed670e4cd61e0e3adee",
       "/assets/demoicon.svg": "c3dff653da33d33cbb80c81c487f1b6b776fcc48",
@@ -17,7 +17,7 @@
       "/assets/shapeshifter.svg": "c3a65384aa9828ff7b1d4f8c6777b62c7a18c8c9",
       "/manifest.json": "4b07af60f942acaaa9b5590ce086e2dd33372f77",
       "/favicon.ico": "f4aad42c3b43d219090aeada1135a6a4cecd7e38",
-      "/index.html": "f8218ce604499c0a33f72c62331188662d4e2bf4"
+      "/index.html": "2687a73fdd06f38f368863c971ab32f310aa9ac7"
     },
     "_generatedFromWebpack": true
   }
