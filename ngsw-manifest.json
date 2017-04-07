@@ -1,15 +1,18 @@
 {
   "static": {
     "urls": {
-      "/main.4cbdc197a10a3576c202.bundle.js": "db11dc31bfdcc3476668591c0c14a994a9c48900",
-      "/polyfills.be710277a9ade123acea.bundle.js": "98dc91f791c499928491613f1b1d0a63aa5bf2f8",
+      "/main.8a8f58bece4887269850.bundle.js": "85f9dc63b0b78f89278da32f1c7675358619df94",
+      "/polyfills.6c27240b97c3a39e5eee.bundle.js": "cf61dda225880c1d3288b81696957e238cf9db54",
       "/sw-register.86a9be57c2122660cda4.bundle.js": "d307df289a81139d2ff9e0ff9dc83af9b5f71b9d",
-      "/vendor.8c47c4bdfbe0637a5bdc.bundle.js": "2d9f57cf2c0aecf65ce957ec1f35661b24595cd1",
-      "/inline.04067abb19491d5da687.bundle.js": "3327132076e38b456feab55aac3691edc978e89a",
+      "/vendor.5f6d09a276ed72c8ce49.bundle.js": "44e64b1af88991cc88316fd018039c31f0559ec6",
+      "/inline.d2b3cf7610b79e51aacc.bundle.js": "58418e14ef694e04ba89c97dbc7dd0d0c1a35ebb",
       "/styles.51442149c7b68366ed71.bundle.css": "0095e63f4cd31941c5e93d326f59630d1ebe2147",
+      "/assets/.DS_Store": "cf30c72772cf0360f5228f9b728905a2655d5bba",
+      "/assets/cursor-default.svg": "d5223b4a70d8689dc592fca5eef1164f95714079",
       "/assets/autofix.svg": "57816af39769206d20a5eed670e4cd61e0e3adee",
       "/assets/demoicon.svg": "c3dff653da33d33cbb80c81c487f1b6b776fcc48",
       "/assets/pauseplay-white.png": "5ed13c9ed6311546e3613304774faa7e73fee8cc",
+      "/assets/penaddcursorsmall.png": "8020d60b4c8dd263be90a5c5b13b9407a49b7547",
       "/assets/playpause-white.png": "258952f29f3f00ccf8feca2c63787b3ea38d91bb",
       "/assets/reverse.svg": "e4f70379eda10a7284f02df8dc74c52c44710a96",
       "/assets/screencap.jpg": "1f6ebb2bbfd14cf48dcad7d3129ce2ca20c2f1f4",
@@ -17,7 +20,7 @@
       "/assets/shapeshifter.svg": "c3a65384aa9828ff7b1d4f8c6777b62c7a18c8c9",
       "/manifest.json": "4b07af60f942acaaa9b5590ce086e2dd33372f77",
       "/favicon.ico": "f4aad42c3b43d219090aeada1135a6a4cecd7e38",
-      "/index.html": "2687a73fdd06f38f368863c971ab32f310aa9ac7"
+      "/index.html": "d9bbace0bad6748906ffae96d8753af64c19022e"
     },
     "_generatedFromWebpack": true
   }
