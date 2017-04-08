@@ -1,26 +1,26 @@
 {
   "static": {
     "urls": {
-      "/main.d471f40e420bc9d705df.bundle.js": "09eb76e54b2743a7850ce035ec17b5ef4ebef242",
+      "/main.f4c078321dc8be40b44a.bundle.js": "0bc65e22b9fab0e20b65ae2e852c05ac006b3296",
       "/polyfills.6c27240b97c3a39e5eee.bundle.js": "cf61dda225880c1d3288b81696957e238cf9db54",
       "/sw-register.86a9be57c2122660cda4.bundle.js": "d307df289a81139d2ff9e0ff9dc83af9b5f71b9d",
       "/vendor.5f6d09a276ed72c8ce49.bundle.js": "44e64b1af88991cc88316fd018039c31f0559ec6",
-      "/inline.f1ab453ad7d08cb38416.bundle.js": "59d9346e1276341c015136a39cbca7665090a938",
+      "/inline.2c5b25e9e3df12c65c77.bundle.js": "e8f2d272a3bd4559b831164f5e660cf7924087f1",
       "/styles.51442149c7b68366ed71.bundle.css": "0095e63f4cd31941c5e93d326f59630d1ebe2147",
       "/assets/.DS_Store": "cf30c72772cf0360f5228f9b728905a2655d5bba",
       "/assets/autofix.svg": "57816af39769206d20a5eed670e4cd61e0e3adee",
       "/assets/cursor-default.svg": "d5223b4a70d8689dc592fca5eef1164f95714079",
+      "/assets/demoicon.svg": "c3dff653da33d33cbb80c81c487f1b6b776fcc48",
       "/assets/pauseplay-white.png": "5ed13c9ed6311546e3613304774faa7e73fee8cc",
       "/assets/penaddcursorsmall.png": "8020d60b4c8dd263be90a5c5b13b9407a49b7547",
-      "/assets/demoicon.svg": "c3dff653da33d33cbb80c81c487f1b6b776fcc48",
       "/assets/playpause-white.png": "258952f29f3f00ccf8feca2c63787b3ea38d91bb",
       "/assets/reverse.svg": "e4f70379eda10a7284f02df8dc74c52c44710a96",
       "/assets/screencap.jpg": "1f6ebb2bbfd14cf48dcad7d3129ce2ca20c2f1f4",
       "/assets/shapeshifter.png": "6cd25dfd1dbd8d91c41635451e37678de24adee8",
       "/assets/shapeshifter.svg": "c3a65384aa9828ff7b1d4f8c6777b62c7a18c8c9",
-      "/manifest.json": "4b07af60f942acaaa9b5590ce086e2dd33372f77",
       "/favicon.ico": "f4aad42c3b43d219090aeada1135a6a4cecd7e38",
-      "/index.html": "4be3fc8c69b29729bb2213232395df40f7bb705e"
+      "/manifest.json": "4b07af60f942acaaa9b5590ce086e2dd33372f77",
+      "/index.html": "baab2805e54d7ab7078e3610b1ee3653ea19fc75"
     },
     "_generatedFromWebpack": true
   }
