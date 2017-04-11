@@ -18,6 +18,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { SplitterComponent } from './splitter/splitter.component';
 import { TimelineComponent } from './timeline/timeline.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
+import { LayerTreeComponent } from './viewer/layertree.component';
 
 // Services.
 import {
@@ -61,6 +62,7 @@ import 'hammerjs';
     DemoDialogComponent,
     SvgCommandPipe,
     SubPathItemsPipe,
+    LayerTreeComponent,
   ],
   imports: [
     BrowserModule,
@@ -97,7 +99,11 @@ export class AppModule {
       .addSvgIcon('autofix', sanitizer.bypassSecurityTrustResourceUrl('assets/autofix.svg'))
       .addSvgIcon('contribute', sanitizer.bypassSecurityTrustResourceUrl('assets/contribute.svg'))
       .addSvgIcon('shapeshifter', sanitizer.bypassSecurityTrustResourceUrl('assets/shapeshifter.svg'))
-      .addSvgIcon('addpaths', sanitizer.bypassSecurityTrustResourceUrl('assets/addpaths.svg'))
+      .addSvgIcon('importlayers', sanitizer.bypassSecurityTrustResourceUrl('assets/importlayers.svg'))
+      .addSvgIcon('clippathlayer', sanitizer.bypassSecurityTrustResourceUrl('assets/clippathlayer.svg'))
+      .addSvgIcon('grouplayer', sanitizer.bypassSecurityTrustResourceUrl('assets/grouplayer.svg'))
+      .addSvgIcon('pathlayer', sanitizer.bypassSecurityTrustResourceUrl('assets/pathlayer.svg'))
+      .addSvgIcon('vectorlayer', sanitizer.bypassSecurityTrustResourceUrl('assets/vectorlayer.svg'))
       .addSvgIcon('selectioncursor', sanitizer.bypassSecurityTrustResourceUrl('assets/selectioncursor.svg'))
       .addSvgIcon('demoicon', sanitizer.bypassSecurityTrustResourceUrl('assets/demoicon.svg'));
   }
