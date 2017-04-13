@@ -1,52 +1,60 @@
-import { StateService, AnimatorService } from '../../services';
+import * as JSZip from 'jszip';
+import * as $ from 'jquery';
+import * as KeyframesSerializer from './KeyframesSerializer';
+import * as JsSerializer from './JsSerializer';
+import * as SpriteSerializer from './SpriteSerializer';
+import { environment } from '../../../environments/environment';
+import { StateService } from '../../services';
 import { PathLayer, GroupLayer, VectorLayer } from '../layers';
 import { CanvasType } from '../../CanvasType';
 import { AvdSerializer, SvgSerializer } from '.';
-import * as CssKeyframesSerializer from './CssKeyframesSerializer';
+import { ColorUtil } from '../common';
 import {
   AvdTarget, AvdAnimation, AvdPropertyName, AvdValueType,
-  SvgTarget, SvgAnimation, SvgPropertyName,
+  SvgTarget, SvgAnimation, SvgPropertyName, Interpolator,
 } from '../animation';
-import { environment } from '../../../environments/environment';
-import { ColorUtil } from '../common';
-import * as JSZip from 'jszip';
-import * as $ from 'jquery';
 
 // TODO: release this when it is ready and tested
-const SHOULD_EXPORT_CSS_KEYFRAMES = !environment.production && false;
+const SHOULD_EXPORT_CSS_KEYFRAMES = !environment.production && true;
+const SHOULD_EXPORT_JS_SCRIPT = !environment.production && false;
+const SHOULD_EXPORT_SVG_SPRITE = !environment.production && true;
 
-export function exportCurrentState(lss: StateService, as: AnimatorService) {
+export function generateZip(
+  stateService: StateService,
+  duration: number,
+  interpolator: Interpolator) {
+
   const startVlChildren: Array<PathLayer | GroupLayer> = [];
   const endVlChildren: Array<PathLayer | GroupLayer> = [];
 
   // Create AvdTargets.
   const avdTargets: AvdTarget[] = [];
-  const startVl = lss.getVectorLayer(CanvasType.Start);
-  const endVl = lss.getVectorLayer(CanvasType.End);
+  const startVl = stateService.getVectorLayer(CanvasType.Start);
+  const endVl = stateService.getVectorLayer(CanvasType.End);
 
   // Create vector layer target.
   const alphaTarget =
     createAlphaAvdTarget(
       startVl,
       endVl,
-      as.getDuration(),
-      as.getInterpolator().androidRef);
+      duration,
+      interpolator.androidRef);
   if (alphaTarget) {
     avdTargets.push(alphaTarget);
   }
 
-  const startGl = lss.getActiveRotationLayer(CanvasType.Start);
-  const endGl = lss.getActiveRotationLayer(CanvasType.End);
+  const startGl = stateService.getActiveRotationLayer(CanvasType.Start);
+  const endGl = stateService.getActiveRotationLayer(CanvasType.End);
 
   // Create rotation layer target.
   const rotationTarget =
     createRotationAvdTarget(
       startGl,
       endGl,
-      as.getDuration(),
-      as.getInterpolator().androidRef);
-  const startPl = lss.getActivePathLayer(CanvasType.Start);
-  const endPl = lss.getActivePathLayer(CanvasType.End);
+      duration,
+      interpolator.androidRef);
+  const startPl = stateService.getActivePathLayer(CanvasType.Start);
+  const endPl = stateService.getActivePathLayer(CanvasType.End);
   if (rotationTarget) {
     avdTargets.push(rotationTarget);
     startVlChildren.push(startGl);
@@ -61,18 +69,18 @@ export function exportCurrentState(lss: StateService, as: AnimatorService) {
     createPathAvdTarget(
       startPl,
       endPl,
-      as.getDuration(),
-      as.getInterpolator().androidRef));
+      duration,
+      interpolator.androidRef));
 
   // Create VectorLayers.
-  const startOutputVectorLayer =
+  const startOutVl =
     new VectorLayer(
       startVlChildren,
       startVl.id,
       startVl.width,
       startVl.height,
       startVl.alpha);
-  const endOutputVectorLayer =
+  const endOutVl =
     new VectorLayer(
       endVlChildren,
       endVl.id,
@@ -88,7 +96,7 @@ export function exportCurrentState(lss: StateService, as: AnimatorService) {
     createOpacitySvgTarget(
       startVl,
       endVl,
-      as.getDuration(),
+      duration,
       'ease-in-out');
   if (opacitySvgTarget) {
     svgTargets.push(opacitySvgTarget);
@@ -99,7 +107,7 @@ export function exportCurrentState(lss: StateService, as: AnimatorService) {
     createRotationSvgTarget(
       startGl,
       endGl,
-      as.getDuration(),
+      duration,
       'ease-in-out');
   if (rotationSvgTarget) {
     svgTargets.push(rotationSvgTarget);
@@ -110,33 +118,51 @@ export function exportCurrentState(lss: StateService, as: AnimatorService) {
     createPathSvgTarget(
       startPl,
       endPl,
-      as.getDuration(),
+      duration,
       'ease-in-out'));
 
-  // Create SVGs.
-  const startSvg = SvgSerializer.vectorLayerToSvgString(startOutputVectorLayer);
-  const endSvg = SvgSerializer.vectorLayerToSvgString(endOutputVectorLayer);
-
-  // Create CSS keyframes HTML file.
-  const cssKeyframesHtml = CssKeyframesSerializer.svgAnimationToHtml(startSvg, svgTargets);
+  // Create compatible SVGs (note that we intentionally don't run SVGO on these).
+  const startSvg = SvgSerializer.vectorLayerToSvgString(startOutVl, startOutVl.width, startOutVl.height);
+  const endSvg = SvgSerializer.vectorLayerToSvgString(endOutVl, endOutVl.width, endOutVl.height);
 
   const zip = new JSZip();
   zip.file('README.txt', createExportReadme());
   const android = zip.folder('android');
-  const avd = AvdSerializer.vectorLayerAnimationToAvdXmlString(startOutputVectorLayer, avdTargets);
+  const avd = AvdSerializer.vectorLayerAnimationToAvdXmlString(startOutVl, avdTargets);
   android.file('animated_vector_drawable.xml', avd);
-  const startVD = AvdSerializer.vectorLayerToVectorDrawableXmlString(startOutputVectorLayer);
-  android.file('start_vector_drawable.xml', startVD);
-  const endVD = AvdSerializer.vectorLayerToVectorDrawableXmlString(startOutputVectorLayer);
-  android.file('end_vector_drawable.xml', endVD);
+  const startVd = AvdSerializer.vectorLayerToVectorDrawableXmlString(startOutVl);
+  android.file('start_vector_drawable.xml', startVd);
+  const endVd = AvdSerializer.vectorLayerToVectorDrawableXmlString(endOutVl);
+  android.file('end_vector_drawable.xml', endVd);
   const web = zip.folder('web');
-  web.file('start.svg', startSvg);
-  web.file('end.svg', endSvg);
+  const svg = web.folder('svg');
+  svg.file('start.svg', startSvg);
+  svg.file('end.svg', endSvg);
   if (SHOULD_EXPORT_CSS_KEYFRAMES) {
-    web.file('index.html', cssKeyframesHtml);
+    // Create a CSS keyframe animation.
+    const keyframes = web.folder('keyframes');
+    keyframes.file('keyframes.html', KeyframesSerializer.createHtml(startSvg, 'keyframes.css'));
+    keyframes.file('keyframes.css', KeyframesSerializer.createCss(svgTargets));
+  }
+  if (SHOULD_EXPORT_JS_SCRIPT) {
+    // Create JS animation loop HTML file.
+    const jsLoopHtml = JsSerializer.svgAnimationToScript(startSvg, svgTargets);
+    web.folder('js').file('animation.html', jsLoopHtml);
+  }
+  if (SHOULD_EXPORT_SVG_SPRITE) {
+    // Create an svg sprite animation.
+    const svgSprite =
+      SpriteSerializer.createSvg(startVl, endVl, duration, interpolator);
+    const cssSprite =
+      SpriteSerializer.createCss(startVl.width, startVl.height, duration);
+    const htmlSprite = SpriteSerializer.createHtml('sprite.svg', 'sprite.css');
+    const sprite = web.folder('sprite');
+    sprite.file('sprite.html', htmlSprite);
+    sprite.file('sprite.css', cssSprite);
+    sprite.file('sprite.svg', svgSprite);
   }
   zip.generateAsync({ type: 'blob' }).then(content => {
-    downloadFile(content, `ShapeShifter.zip`);
+    downloadFile(content, 'ShapeShifter.zip');
   });
 }
 
@@ -276,8 +302,8 @@ function createPathSvgTarget(
   const svgAnimations: SvgAnimation[] = [];
   svgAnimations.push(
     createSvgAnimation(
-      `path('${startLayer.pathData.getPathString()}')`,
-      `path('${endLayer.pathData.getPathString()}')`,
+      `${startLayer.pathData.getPathString()}`,
+      `${endLayer.pathData.getPathString()}`,
       'd'));
   if (startLayer.fillColor && endLayer.fillColor && startLayer.fillColor !== endLayer.fillColor) {
     svgAnimations.push(

@@ -3,7 +3,7 @@ import {
 } from '@angular/core';
 import { Path, SubPath } from '../scripts/paths';
 import {
-  StateService, SelectionService, SelectionType, HoverService, HoverType
+  StateService, SelectionService, HoverService, HoverType
 } from '../services';
 import { CanvasType } from '../CanvasType';
 
@@ -24,8 +24,6 @@ export class SubpathInspectorComponent implements OnInit {
   isHovering = false;
   private isHoveringOverDeleteSubPath = false;
   private isHoveringOverSubPath = false;
-  private isHoveringOverMoveSubPathUp = false;
-  private isHoveringOverMoveSubPathDown = false;
   private subPathText_ = '';
 
   constructor(
@@ -44,33 +42,7 @@ export class SubpathInspectorComponent implements OnInit {
   }
 
   onSubPathClick(event: MouseEvent) {
-    const selections =
-      this.selectionService.getSelections().filter(s => s.type === SelectionType.SubPath);
-    const appendToList = event.shiftKey || event.metaKey;
-    if (selections.length && selections[0].source !== this.canvasType && appendToList) {
-      // If the user is attempting to select something in a different pane in the
-      // middle of a multi-select, do nothing.
-      return;
-    }
-    this.selectionService.toggleSubPath(this.canvasType, this.subIdx, appendToList);
-  }
-
-  onMoveSubPathUpClick(event: MouseEvent) {
-    const fromPathLayer = this.stateService.getActivePathLayer(this.canvasType);
-    this.clearSelectionsAndHovers();
-    this.replacePath(fromPathLayer.pathData.mutate()
-      .moveSubPath(this.subIdx, this.subIdx - 1)
-      .build(),
-      event);
-  }
-
-  onMoveSubPathDownClick(event: MouseEvent) {
-    const fromPathLayer = this.stateService.getActivePathLayer(this.canvasType);
-    this.clearSelectionsAndHovers();
-    this.replacePath(fromPathLayer.pathData.mutate()
-      .moveSubPath(this.subIdx, this.subIdx + 1)
-      .build(),
-      event);
+    this.selectionService.toggleSubPath(this.canvasType, this.subIdx);
   }
 
   onUnsplitButtonClick(event: MouseEvent) {
@@ -114,16 +86,6 @@ export class SubpathInspectorComponent implements OnInit {
     return path && this.subPath && this.subPath.isUnsplittable();
   }
 
-  canSubPathBeMovedUp() {
-    const path = this.getPath();
-    return path && this.subPath && this.subIdx !== 0;
-  }
-
-  canSubPathBeMovedDown() {
-    const path = this.getPath();
-    return path && this.subPath && this.subIdx !== path.getSubPaths().filter(s => !s.isCollapsing()).length - 1;
-  }
-
   onSubPathHoverEvent(isHoveringOverSubPath: boolean) {
     this.isHoveringOverSubPath = isHoveringOverSubPath;
     this.broadcastHoverEvent(isHoveringOverSubPath, HoverType.SubPath);
@@ -132,16 +94,6 @@ export class SubpathInspectorComponent implements OnInit {
   onDeleteSubPathHoverEvent(isHoveringOverDeleteSubPath: boolean) {
     this.isHoveringOverDeleteSubPath = isHoveringOverDeleteSubPath;
     this.broadcastHoverEvent(isHoveringOverDeleteSubPath, HoverType.SubPath);
-  }
-
-  onMoveSubPathUpHoverEvent(isHoveringOverMoveSubPathUp: boolean) {
-    this.isHoveringOverMoveSubPathUp = isHoveringOverMoveSubPathUp;
-    this.broadcastHoverEvent(isHoveringOverMoveSubPathUp, HoverType.SubPath);
-  }
-
-  onMoveSubPathDownHoverEvent(isHoveringOverMoveSubPathDown: boolean) {
-    this.isHoveringOverMoveSubPathDown = isHoveringOverMoveSubPathDown;
-    this.broadcastHoverEvent(isHoveringOverMoveSubPathDown, HoverType.Reverse);
   }
 
   private broadcastHoverEvent(isHovering: boolean, type: HoverType) {
@@ -161,10 +113,6 @@ export class SubpathInspectorComponent implements OnInit {
     } else {
       this.hoverService.reset();
     }
-    this.isHovering =
-      this.isHoveringOverSubPath
-      && !this.isHoveringOverDeleteSubPath
-      && !this.isHoveringOverMoveSubPathUp
-      && !this.isHoveringOverMoveSubPathDown;
+    this.isHovering = this.isHoveringOverSubPath && !this.isHoveringOverDeleteSubPath;
   }
 }

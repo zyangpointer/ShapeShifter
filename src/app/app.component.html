@@ -6,6 +6,7 @@
   <div class="display-container" fxLayout="column" fxFlex>
     <!-- Start/Preview/End canvases. -->
     <div #canvasContainer class="canvas-container" fxLayout="row"
+      (click)="onCanvasContainerClick()" [class.show-pen-cursor]="(appModeObservable | async) !== SELECTION_MODE"
       fxLayoutAlign="center center" fxFlex>
       <app-canvas [canvasType]="START_CANVAS"></app-canvas>
       <app-canvas *ngIf="wasMorphable" [canvasType]="PREVIEW_CANVAS"></app-canvas>
@@ -20,7 +21,9 @@
     <div fxLayout="column" class="inspector-panel">
       <div class="inspector-panel-header" fxLayout="row" fxLayoutAlign="start center">
         <div fxFlex fxLayoutAlign="end center">
-          <button md-icon-button [mdMenuTriggerFor]="addPathsMenu">
+          <span fxFlex>Paths</span>
+          <button md-icon-button mdTooltip="Add paths" mdTooltipPosition="above"
+            mdTooltipShowDelay="500" [mdMenuTriggerFor]="addPathsMenu">
             <md-icon class="svg-button" svgIcon="importlayers"></md-icon>
           </button>
           <md-menu #addPathsMenu="mdMenu">
@@ -46,33 +49,27 @@
     <!-- Path inspector. -->
     <div class="inspector-panel" fxLayout="column" fxFlex>
       <div class="inspector-panel-header" fxLayout="row" fxLayoutAlign="start center">
-        <span *ngIf="morphabilityStatus !== MORPHABILITY_NONE">
-          <span [ngClass]="{
-            'unmorphable': morphabilityStatus === MORPHABILITY_UNMORPHABLE,
-            'morphable': morphabilityStatus === MORPHABILITY_MORPHABLE}"
-            [innerHTML]="morphabilityStatusTextObservable | async">
+        <span *ngIf="morphStatus !== MORPH_NONE">
+          <span class="status-text" [ngClass]="{
+            'unmorphable': morphStatus === MORPH_UNMORPHABLE,
+            'morphable': morphStatus === MORPH_MORPHABLE}"
+            [innerHTML]="statusTextObservable | async">
           </span>
         </span>
         <span fxFlex></span>
-        <button md-icon-button [disabled]="morphabilityStatus === MORPHABILITY_NONE"
+        <button md-icon-button [disabled]="morphStatus === MORPH_NONE"
           mdTooltip="Select points" mdTooltipPosition="above" mdTooltipShowDelay="500"
-          (click)="appModeService.setAppMode(SELECT_POINTS_MODE)">
-          <md-icon class="svg-button" [class.activated]="(appModeObservable | async) === SELECT_POINTS_MODE" svgIcon="selectioncursor"></md-icon>
+          (click)="appModeService.setAppMode(SELECTION_MODE)">
+          <md-icon class="svg-button" [class.activated]="(appModeObservable | async) === SELECTION_MODE" svgIcon="selectioncursor"></md-icon>
         </button>
-        <button md-icon-button [disabled]="morphabilityStatus === MORPHABILITY_NONE"
-          mdTooltip="Add points" mdTooltipPosition="above" mdTooltipShowDelay="500"
-          (click)="appModeService.setAppMode(ADD_POINTS_MODE)">
-          <md-icon [class.activated]="(appModeObservable | async) === ADD_POINTS_MODE">add_circle_outline</md-icon>
+        <button md-icon-button [disabled]="morphStatus === MORPH_NONE"
+          mdTooltip="Add points ({{getSplitCommandsKeyboardShortcut()}})"
+          mdTooltipPosition="above" mdTooltipShowDelay="500" (click)="appModeService.setAppMode(SPLIT_COMMANDS_MODE)">
+          <md-icon [class.activated]="(appModeObservable | async) === SPLIT_COMMANDS_MODE">add_circle_outline</md-icon>
         </button>
-        <button *ngIf="IS_PAIR_SUB_PATHS_MODE_ENABLED" md-icon-button
-          [disabled]="morphabilityStatus === MORPHABILITY_NONE"
-          mdTooltip="Pair subpaths" mdTooltipPosition="above" mdTooltipShowDelay="500"
-          (click)="appModeService.setAppMode(PAIR_SUBPATHS_MODE)">
-          <md-icon [class.activated]="(appModeObservable | async) === PAIR_SUBPATHS_MODE">compare_arrows</md-icon>
-        </button>
-        <button md-icon-button [disabled]="morphabilityStatus === MORPHABILITY_NONE"
-          mdTooltip="Split subpaths" mdTooltipPosition="above"
-          mdTooltipShowDelay="500" (click)="appModeService.setAppMode(SPLIT_SUBPATHS_MODE)">
+        <button md-icon-button [disabled]="morphStatus === MORPH_NONE"
+          mdTooltip="Split subpaths ({{getSplitSubPathsKeyboardShortcut()}})"
+          mdTooltipPosition="above" mdTooltipShowDelay="500" (click)="appModeService.setAppMode(SPLIT_SUBPATHS_MODE)">
           <md-icon [class.activated]="(appModeObservable | async) === SPLIT_SUBPATHS_MODE">content_cut</md-icon>
         </button>
       </div>

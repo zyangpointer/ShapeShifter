@@ -67,13 +67,12 @@ export class SelectionService {
     this.source.next(selections);
   }
 
-  toggleSubPath(source: CanvasType, subIdx: number, appendToList = false) {
+  toggleSubPath(source: CanvasType, subIdx: number) {
     const selections = this.getSelections().slice();
     _.remove(selections, sel => sel.type !== SelectionType.SubPath);
     this.toggleInternal(
       selections,
-      { type: SelectionType.SubPath, source, subIdx },
-      appendToList);
+      { type: SelectionType.SubPath, source, subIdx });
   }
 
   toggleSegment(source: CanvasType, subIdx: number, cmdIdx: number, appendToList = false) {
@@ -148,7 +147,7 @@ export interface Selection {
  */
 export enum SelectionType {
   // The user selected an entire subpath.
-  SubPath,
+  SubPath = 1,
   // The user selected an individual segment in a subpath.
   Segment,
   // The user selected an individual point in a subpath.

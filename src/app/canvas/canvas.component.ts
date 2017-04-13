@@ -13,7 +13,7 @@ import {
   CanvasResizeService,
   AppModeService, AppMode,
   SelectionService, SelectionType,
-  StateService, MorphabilityStatus,
+  StateService, MorphStatus,
   HoverService, HoverType, Hover,
   SettingsService,
   FilePickerService,
@@ -147,26 +147,13 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
       // Preview canvas specific setup.
       const interpolatePreviewFn = () => {
         const fraction = this.animatorService.getAnimatedValue();
-        const startPathLayer = this.stateService.getActivePathLayer(CanvasType.Start);
-        const previewPathLayer = this.stateService.getActivePathLayer(CanvasType.Preview);
-        const endPathLayer = this.stateService.getActivePathLayer(CanvasType.End);
-        if (startPathLayer && previewPathLayer && endPathLayer
-          && startPathLayer.isMorphableWith(endPathLayer)) {
-          // Note that there is no need to broadcast layer state changes
-          // for the preview canvas.
-          previewPathLayer.interpolate(startPathLayer, endPathLayer, fraction);
-        }
-        const startGroupLayer = this.stateService.getActiveRotationLayer(CanvasType.Start);
-        const previewGroupLayer = this.stateService.getActiveRotationLayer(CanvasType.Preview);
-        const endGroupLayer = this.stateService.getActiveRotationLayer(CanvasType.End);
-        if (startGroupLayer && previewGroupLayer && endGroupLayer) {
-          previewGroupLayer.interpolate(startGroupLayer, endGroupLayer, fraction);
-        }
-        const startVectorLayer = this.stateService.getVectorLayer(CanvasType.Start);
-        const previewVectorLayer = this.stateService.getVectorLayer(CanvasType.Preview);
-        const endVectorLayer = this.stateService.getVectorLayer(CanvasType.End);
-        if (startVectorLayer && previewVectorLayer && endVectorLayer) {
-          previewVectorLayer.interpolate(startVectorLayer, endVectorLayer, fraction);
+        const startVl = this.stateService.getVectorLayer(CanvasType.Start);
+        const previewVl = this.stateService.getVectorLayer(CanvasType.Preview);
+        const endVl = this.stateService.getVectorLayer(CanvasType.End);
+        if (startVl && previewVl && endVl
+          && startVl.isMorphableWith(previewVl)
+          && previewVl.isMorphableWith(endVl)) {
+          LayerUtil.deepInterpolate(startVl, previewVl, endVl, fraction);
         }
         this.draw();
       };
@@ -176,8 +163,8 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
       this.subscribeTo(
         this.animatorService.getAnimatedValueObservable(),
         () => interpolatePreviewFn());
-      this.subscribeTo(this.settingsService.getSettingsObservable());
-      this.subscribeTo(this.stateService.getMorphabilityStatusObservable());
+      this.subscribeTo(this.settingsService.getCanvasSettingsObservable());
+      this.subscribeTo(this.stateService.getMorphStatusObservable());
     } else {
       // Non-preview canvas specific setup.
       this.subscribeTo(this.stateService.getActivePathIdObservable(this.canvasType));
@@ -185,11 +172,10 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
       this.subscribeTo(
         this.appModeService.asObservable(),
         () => {
-          if (this.appMode === AppMode.AddPoints
+          if (this.appMode === AppMode.SplitCommands
             || (this.appMode === AppMode.SplitSubPaths
               && this.activePathLayer
               && this.activePathLayer.isStroked())) {
-            this.showPenCursor();
             const subIdxs = new Set<number>();
             for (const s of this.selectionService.getSelections()) {
               subIdxs.add(s.subIdx);
@@ -200,8 +186,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
           } else {
             this.segmentSplitter = undefined;
           }
-          if (this.appMode === AppMode.SelectPoints) {
-            this.resetCursor();
+          if (this.appMode === AppMode.Selection) {
             this.canvasSelector = new CanvasSelector(this);
           } else {
             this.canvasSelector = undefined;
@@ -209,18 +194,18 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
           if (this.appMode === AppMode.SplitSubPaths
             && this.activePathLayer
             && this.activePathLayer.isFilled()) {
-            this.showPenCursor();
             this.shapeSplitter = new ShapeSplitter(this);
           } else {
             this.shapeSplitter = undefined;
           }
-          if (this.appMode !== AppMode.AddPoints) {
+          if (this.appMode !== AppMode.SplitCommands) {
             this.selectionService.reset();
           }
           if (!this.activePathId) {
             this.showPointerCursor();
           }
           this.hoverService.reset();
+          this.resetCursor();
           this.currentHoverPreviewPath = undefined;
           this.draw();
         });
@@ -338,7 +323,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
 
   private get shouldDisableLayer() {
     return this.canvasType === CanvasType.Preview
-      && this.stateService.getMorphabilityStatus() !== MorphabilityStatus.Morphable;
+      && this.stateService.getMorphStatus() !== MorphStatus.Morphable;
   }
 
   private get shouldLabelPoints() {
@@ -392,10 +377,6 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     return MathUtil.transformPoint(
       mousePoint,
       Matrix.flatten(...this.transformsForActiveLayer.reverse()));
-  }
-
-  private showPenCursor() {
-    this.canvasContainer.css({ cursor: 'url(/assets/penaddcursorsmall.png) 5 0, auto' });
   }
 
   showPointerCursor() {
@@ -683,10 +664,9 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     if (this.canvasType === CanvasType.Preview || !this.activePathId) {
       return;
     }
-    if (this.appMode === AppMode.SelectPoints) {
+    if (this.canvasSelector) {
       this.drawHighlightedSelectedSegments(ctx);
-    }
-    if (this.appMode === AppMode.AddPoints) {
+    } else if (this.segmentSplitter) {
       this.drawHighlightedAddPointModeSegments(ctx);
     }
 
@@ -700,7 +680,7 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     this.executeCommands(ctx, cmds);
     this.executeHighlights(ctx, SPLIT_POINT_COLOR, this.unselectedSegmentLineWidth);
 
-    if (this.appMode === AppMode.SplitSubPaths) {
+    if (this.shapeSplitter) {
       this.drawSplitSubPathsModeDragSegment(ctx);
     }
   }
@@ -899,9 +879,9 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  // Draw any actively dragged points along the path (select points mode).
+  // Draw any actively dragged points along the path (selection mode).
   private drawSelectPointsDraggingPoints(ctx: Context) {
-    if (this.appMode !== AppMode.SelectPoints
+    if (this.appMode !== AppMode.Selection
       || !this.canvasSelector
       || !this.canvasSelector.isDragTriggered()) {
       return;
@@ -918,10 +898,10 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
       SPLIT_POINT_RADIUS_FACTOR, SPLIT_POINT_COLOR);
   }
 
-  // Draw a floating point preview over the canvas (add points mode
+  // Draw a floating point preview over the canvas (split commands mode
   // or split subpaths mode for stroked paths).
   private drawFloatingPreviewPoint(ctx: Context) {
-    if (this.appMode !== AppMode.AddPoints
+    if (this.appMode !== AppMode.SplitCommands
       && this.appMode !== AppMode.SplitSubPaths
       && !this.activePathLayer.isStroked()
       || !this.segmentSplitter
@@ -980,9 +960,9 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
       return;
     }
     const mouseDown = this.mouseEventToPoint(event);
-    if (this.appMode === AppMode.SelectPoints) {
+    if (this.appMode === AppMode.Selection) {
       this.canvasSelector.onMouseDown(mouseDown, event.shiftKey || event.metaKey);
-    } else if (this.appMode === AppMode.AddPoints) {
+    } else if (this.appMode === AppMode.SplitCommands) {
       this.segmentSplitter.onMouseDown(mouseDown);
     } else if (this.appMode === AppMode.SplitSubPaths) {
       if (this.activePathLayer.isStroked()) {
@@ -1000,9 +980,9 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
       return;
     }
     const mouseMove = this.mouseEventToPoint(event);
-    if (this.appMode === AppMode.SelectPoints) {
+    if (this.appMode === AppMode.Selection) {
       this.canvasSelector.onMouseMove(mouseMove);
-    } else if (this.appMode === AppMode.AddPoints) {
+    } else if (this.appMode === AppMode.SplitCommands) {
       this.segmentSplitter.onMouseMove(mouseMove);
     } else if (this.appMode === AppMode.SplitSubPaths) {
       if (this.activePathLayer.isStroked()) {
@@ -1020,9 +1000,9 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
       return;
     }
     const mouseUp = this.mouseEventToPoint(event);
-    if (this.appMode === AppMode.SelectPoints) {
+    if (this.appMode === AppMode.Selection) {
       this.canvasSelector.onMouseUp(mouseUp, event.shiftKey || event.metaKey);
-    } else if (this.appMode === AppMode.AddPoints) {
+    } else if (this.appMode === AppMode.SplitCommands) {
       this.segmentSplitter.onMouseUp(mouseUp);
     } else if (this.appMode === AppMode.SplitSubPaths) {
       if (this.activePathLayer.isStroked()) {
@@ -1040,10 +1020,10 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
       return;
     }
     const mouseLeave = this.mouseEventToPoint(event);
-    if (this.appMode === AppMode.SelectPoints) {
+    if (this.appMode === AppMode.Selection) {
       // TODO: how to handle the case where the mouse leaves and re-enters mid-gesture?
       this.canvasSelector.onMouseLeave(mouseLeave);
-    } else if (this.appMode === AppMode.AddPoints) {
+    } else if (this.appMode === AppMode.SplitCommands) {
       this.segmentSplitter.onMouseLeave(mouseLeave);
     } else if (this.appMode === AppMode.SplitSubPaths) {
       if (this.activePathLayer.isStroked()) {
@@ -1055,6 +1035,10 @@ export class CanvasComponent implements AfterViewInit, OnDestroy {
   }
 
   onClick(event: MouseEvent) {
+    // TODO: is this hacky? should we be using onBlur() to reset the app mode?
+    // This ensures that parents won't also receive the same click event.
+    event.cancelBubble = true;
+
     if (this.activePathId) {
       return;
     }

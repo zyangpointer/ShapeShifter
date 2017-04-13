@@ -5,16 +5,18 @@ import { CanvasType } from '../CanvasType';
 import { Path } from '../scripts/paths';
 import { AutoAwesome } from '../scripts/algorithms';
 import { ROTATION_GROUP_LAYER_ID } from '../scripts/import';
+import { Matrix } from '../scripts/common';
 
 // Note that importing these from '.' causes runtime errors.
 import { AppModeService } from './appmode.service';
 import { AnimatorService } from './animator.service';
 import { HoverService } from './hover.service';
 import { SelectionService } from './selection.service';
+import { SettingsService } from './settings.service';
 
 /**
  * The global state service that is in charge of keeping track of the loaded
- * SVGs, active path layers, and the current morphability status.
+ * SVGs, active path layers, and the current morph status.
  */
 @Injectable()
 export class StateService {
@@ -28,8 +30,8 @@ export class StateService {
   private readonly activeLayerMap = new Map<CanvasType, VectorLayer>();
   // Observable that broadcasts changes to the currently active path ID for each CanvasType.
   private readonly activePathIdSources = new Map<CanvasType, BehaviorSubject<string>>();
-  // Observable that broadcast changes to the current morphability status.
-  private readonly statusSource = new BehaviorSubject<MorphabilityStatus>(MorphabilityStatus.None);
+  // Observable that broadcast changes to the current morph status.
+  private readonly statusSource = new BehaviorSubject<MorphStatus>(MorphStatus.None);
   // Observable that broadcasts changes when the current list of vector layers changes.
   private readonly importedVlsSource = new BehaviorSubject<ReadonlyArray<VectorLayer>>([]);
 
@@ -38,11 +40,19 @@ export class StateService {
     private readonly hoverService: HoverService,
     private readonly animatorService: AnimatorService,
     private readonly appModeService: AppModeService,
+    private readonly settingsService: SettingsService,
   ) {
-    [CanvasType.Start, CanvasType.Preview, CanvasType.End]
-      .forEach(type => {
-        this.activePathIdSources.set(type, new BehaviorSubject<string>(undefined));
-      });
+    [CanvasType.Start, CanvasType.Preview, CanvasType.End].forEach(type => {
+      this.activePathIdSources.set(type, new BehaviorSubject<string>(undefined));
+    });
+    settingsService.getRotationObservable().subscribe(rotation => {
+      this.updateActiveRotationLayer(CanvasType.Start, 0, false /* shouldNotify */);
+      this.updateActiveRotationLayer(CanvasType.Preview, 0, false /* shouldNotify */);
+      this.updateActiveRotationLayer(CanvasType.End, rotation, false /* shouldNotify */);
+      this.notifyChange(CanvasType.Start);
+      this.notifyChange(CanvasType.Preview);
+      this.notifyChange(CanvasType.End);
+    });
   }
 
   /**
@@ -101,9 +111,7 @@ export class StateService {
     this.appModeService.reset();
     this.selectionService.reset();
     this.hoverService.reset();
-
-    // TODO: resetting the animator service strangely breaks things here... not sure why.
-    // this.animatorService.reset();
+    this.animatorService.reset();
 
     const setActivePathIdFn = (type: CanvasType) => {
       if (type === CanvasType.Start) {
@@ -120,7 +128,12 @@ export class StateService {
       this.activeLayerMap.set(CanvasType.Preview, startVl ? startVl.clone() : startVl);
       this.activeLayerMap.set(CanvasType.End, endVl);
       // Attempt to make the start and end subpaths compatible with each other.
-      this.updateActivePath(type, this.getActivePathLayer(type).pathData, false /* shouldNotify */);
+      this.updateActivePath(
+        type, this.getActivePathLayer(type).pathData, false /* shouldNotify */);
+      this.updateActiveRotationLayer(CanvasType.Start, 0, false /* shouldNotify */);
+      this.updateActiveRotationLayer(CanvasType.Preview, 0, false /* shouldNotify */);
+      this.updateActiveRotationLayer(
+        CanvasType.End, this.settingsService.getRotation(), false /* shouldNotify */);
     };
 
     setActivePathIdFn(canvasType);
@@ -250,12 +263,22 @@ export class StateService {
   /**
    * Updates the active rotation layer with the new rotation value.
    */
-  updateActiveRotationLayer(type: CanvasType, rotation: number, shouldNotify = true) {
+  private updateActiveRotationLayer(type: CanvasType, rotation: number, shouldNotify = true) {
     const vectorLayer = this.getVectorLayer(type);
     const activePathLayer = this.getActivePathLayer(type);
     if (!activePathLayer) {
       return;
     }
+    const { width, height } = vectorLayer;
+    const transforms = [
+      Matrix.fromTranslation(-width / 2, -height / 2),
+      Matrix.fromRotation(-rotation),
+      Matrix.fromTranslation(width / 2, height / 2),
+    ];
+    this.updateActivePath(
+      type,
+      activePathLayer.pathData.mutate().setTransforms(transforms).build(),
+      shouldNotify);
     const updateRotationLayerFn = (layer: GroupLayer) => {
       layer.pivotX = vectorLayer.width / 2;
       layer.pivotY = vectorLayer.height / 2;
@@ -296,7 +319,7 @@ export class StateService {
    */
   notifyChange(type: CanvasType) {
     this.activePathIdSources.get(type).next(this.activePathIdMap.get(type));
-    this.statusSource.next(this.getMorphabilityStatus());
+    this.statusSource.next(this.getMorphStatus());
   }
 
   /**
@@ -327,16 +350,16 @@ export class StateService {
     this.existingPathIdsSource.next(Array.from(this.importedPathMap.keys()));
   }
 
-  getMorphabilityStatus() {
+  getMorphStatus() {
     const startPathLayer = this.getActivePathLayer(CanvasType.Start);
     const endPathLayer = this.getActivePathLayer(CanvasType.End);
     if (!startPathLayer || !endPathLayer) {
-      return MorphabilityStatus.None;
+      return MorphStatus.None;
     }
     if (startPathLayer.isMorphableWith(endPathLayer)) {
-      return MorphabilityStatus.Morphable;
+      return MorphStatus.Morphable;
     }
-    return MorphabilityStatus.Unmorphable;
+    return MorphStatus.Unmorphable;
   }
 
   /**
@@ -346,12 +369,13 @@ export class StateService {
     this.appModeService.reset();
     this.selectionService.reset();
     this.hoverService.reset();
+    this.settingsService.reset();
     this.animatorService.reset();
     this.importedPathMap.clear();
     this.activePathIdMap.clear();
     this.activeLayerMap.clear();
     this.activePathIdSources.forEach(source => source.next(undefined));
-    this.statusSource.next(MorphabilityStatus.None);
+    this.statusSource.next(MorphStatus.None);
     this.existingPathIdsSource.next([]);
     [CanvasType.Preview, CanvasType.Start, CanvasType.End].forEach(type => this.notifyChange(type));
   }
@@ -364,7 +388,7 @@ export class StateService {
     return this.activePathIdSources.get(type);
   }
 
-  getMorphabilityStatusObservable() {
+  getMorphStatusObservable() {
     return this.statusSource.asObservable();
   }
 
@@ -373,8 +397,8 @@ export class StateService {
   }
 }
 
-export enum MorphabilityStatus {
-  None,
+export enum MorphStatus {
+  None = 1,
   Unmorphable,
   Morphable,
 }

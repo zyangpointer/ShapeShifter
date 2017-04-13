@@ -2,8 +2,8 @@ import * as _ from 'lodash';
 import { Component, OnInit, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import {
   StateService,
-  MorphabilityStatus,
-  AnimatorService,
+  MorphStatus,
+  SettingsService,
   SelectionService,
   Selection,
   SelectionType,
@@ -27,10 +27,11 @@ declare const ga: Function;
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ToolbarComponent implements OnInit {
-  MORPHABILITY_NONE = MorphabilityStatus.None;
-  MORPHABILITY_UNMORPHABLE = MorphabilityStatus.Unmorphable;
-  MORPHABILITY_MORPHABLE = MorphabilityStatus.Morphable;
-  morphabilityStatusObservable: Observable<MorphabilityStatus>;
+  readonly MORPH_NONE = MorphStatus.None;
+  readonly MORPH_UNMORPHABLE = MorphStatus.Unmorphable;
+  readonly MORPH_MORPHABLE = MorphStatus.Morphable;
+
+  morphStatusObservable: Observable<MorphStatus>;
   isActionModeEnabledObservable: Observable<boolean>;
   // This boolean is used to ensure the toolbar transition doesn't run on page load.
   hasActionModeBeenEnabled = false;
@@ -39,15 +40,15 @@ export class ToolbarComponent implements OnInit {
 
   constructor(
     private readonly viewContainerRef: ViewContainerRef,
-    private readonly animatorService: AnimatorService,
+    private readonly settingsService: SettingsService,
     private readonly selectionService: SelectionService,
     private readonly stateService: StateService,
     private readonly dialogService: DialogService,
   ) { }
 
   ngOnInit() {
-    this.morphabilityStatusObservable =
-      this.stateService.getMorphabilityStatusObservable();
+    this.morphStatusObservable =
+      this.stateService.getMorphStatusObservable();
     this.isDirtyObservable =
       this.stateService.getExistingPathIdsObservable().map(ids => !!ids.length);
     this.isActionModeEnabledObservable =
@@ -145,7 +146,9 @@ export class ToolbarComponent implements OnInit {
 
   onExportClick() {
     ga('send', 'event', 'Export', 'Export click');
-    ExportUtil.exportCurrentState(this.stateService, this.animatorService);
+    const duration = this.settingsService.getDuration();
+    const interpolator = this.settingsService.getInterpolator();
+    ExportUtil.generateZip(this.stateService, duration, interpolator);
   }
 
   onDeleteSelectedPointsClick() {
